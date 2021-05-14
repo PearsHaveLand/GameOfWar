@@ -10,7 +10,7 @@ namespace GameOfWar
         //
         // By using an enum, this allows face cards to be compared with numerical values
         // in a simple and readable way.
-        public enum CardValue
+        private enum CardValue
         {
             TWO,
             THREE,
@@ -30,7 +30,7 @@ namespace GameOfWar
         // Suits for each card
         //
         // Used for assigning names to cards on initialization
-        public enum CardSuit
+        private enum CardSuit
         {
             CLUBS,
             SPADES,
@@ -40,17 +40,116 @@ namespace GameOfWar
 
         struct Card
         {
-            CardValue val;  // Value or "rank" of card, to be compared against other cards
-            string name;    // Display name for the card
+            public CardValue val;  // Value or "rank" of card, to be compared against other cards
+            public string name;    // Display name for the card
         }
         
         // Constructor
         public Deck()
         {
-            /*
-             * Initialize each card
-             * Add each card to deck
-             */
+            m_cards = new List<Card>();
+
+            // Iterate through each suit
+            foreach (CardSuit suit in (CardSuit[]) Enum.GetValues(typeof(CardSuit)))
+            {
+                // Iterate through each card value
+                foreach (CardValue val in (CardValue[])Enum.GetValues(typeof(CardValue)))
+                {
+                    Card card;
+                    card.val = val;
+
+                    // Assign string for card rank
+                    switch (val)
+                    {
+                        case CardValue.TWO:
+                            card.name = "Two of ";
+                            break;
+
+                        case CardValue.THREE:
+                            card.name = "Three of ";
+                            break;
+
+                        case CardValue.FOUR:
+                            card.name = "Four of ";
+                            break;
+
+                        case CardValue.FIVE:
+                            card.name = "Five of ";
+                            break;
+
+                        case CardValue.SIX:
+                            card.name = "Six of ";
+                            break;
+
+                        case CardValue.SEVEN:
+                            card.name = "Seven of ";
+                            break;
+
+                        case CardValue.EIGHT:
+                            card.name = "Eight of ";
+                            break;
+
+                        case CardValue.NINE:
+                            card.name = "Nine of ";
+                            break;
+
+                        case CardValue.TEN:
+                            card.name = "Ten of ";
+                            break;
+
+                        case CardValue.JACK:
+                            card.name = "Jack of ";
+                            break;
+
+                        case CardValue.QUEEN:
+                            card.name = "Queen of ";
+                            break;
+
+                        case CardValue.KING:
+                            card.name = "King of ";
+                            break;
+
+                        case CardValue.ACE:
+                            card.name = "Ace of ";
+                            break;
+
+                        default:
+                            card.name = "";
+                            break;
+                    }
+
+                    // Assign string for card suit
+                    switch (suit)
+                    {
+                        case CardSuit.CLUBS:
+                            card.name += "Clubs";
+                            break;
+
+                        case CardSuit.SPADES:
+                            card.name += "Spades";
+                            break;
+
+                        case CardSuit.DIAMONDS:
+                            card.name += "Diamonds";
+                            break;
+
+                        case CardSuit.HEARTS:
+                            card.name += "Hearts";
+                            break;
+
+                        default:
+                            card.name = "";
+                            break;
+                    }
+
+                    // Add only valid cards to the deck
+                    // Revise after coming up with better way to deal with this
+                    if (card.name != "")
+                    {
+                        m_cards.Add(card);
+                    }
+                }
+            }
         }
 
         // Shuffle
@@ -71,6 +170,15 @@ namespace GameOfWar
                 randPos = randGenerator.Next(cardCount);
 
                 swapCardsAt(i, randPos);
+            }
+        }
+
+        // Mainly for debugging
+        public void PrintCards()
+        {
+            foreach (Card card in m_cards)
+            {
+                Console.WriteLine($"{card.name}, {card.val}");
             }
         }
 
