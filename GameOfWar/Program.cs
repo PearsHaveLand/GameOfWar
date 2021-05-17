@@ -12,19 +12,19 @@ namespace GameOfWar
 
             Console.WriteLine("Deck 1:");
             deck1.Shuffle();
-            deck1.PrintCards();
+            Console.WriteLine(deck1.ToString());
 
             Console.WriteLine("Deck 2:");
-            deck2.PrintCards();
+            Console.WriteLine(deck2.ToString());
         }
 
         static void PrintShuffle()
         {
             Deck mydeck = new Deck();
-            mydeck.PrintCards();
+            mydeck.ToString();
             Console.WriteLine("-------------------");
             mydeck.Shuffle();
-            mydeck.PrintCards();
+            mydeck.ToString();
         }
 
         static void Draw()

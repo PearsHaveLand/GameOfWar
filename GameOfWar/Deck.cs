@@ -38,6 +38,9 @@ namespace GameOfWar
         Hearts
     }
 
+    // struct Card
+    //
+    // Represents a single playing card
     public struct Card
     {
         public Card(CardValue value, CardSuit suit)
@@ -154,12 +157,16 @@ namespace GameOfWar
         }
 
         // Mainly for debugging
-        public void PrintCards()
+        public override string ToString()
         {
+            string deckString = "";
+
             foreach (Card card in m_cards)
             {
-                Console.WriteLine(card.ToString());
+                deckString += $"{card.ToString()}\n";
             }
+
+            return deckString;
         }
 
         // swapCardsAt
