@@ -1,156 +1,96 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace GameOfWar
 {
-    class Deck
+    // Values associated with each card, from lowest to highest
+    //
+    // By using an enum, this allows face cards to be compared with numerical values
+    // in a simple and readable way.
+    // Making it public allows outside classes to compare the card values
+    public enum CardValue
     {
-        // Values associated with each card, from lowest to highest
-        //
-        // By using an enum, this allows face cards to be compared with numerical values
-        // in a simple and readable way.
-        // Making it public allows outside classes to compare the card values
-        public enum CardValue
+        Two,
+        Three,
+        Four,
+        Five,
+        Six,
+        Seven,
+        Eight,
+        Nine,
+        Ten,
+        Jack,
+        Queen,
+        King,
+        Ace
+    }
+
+    // Suits for each card
+    //
+    // Used for assigning names to cards on initialization
+    public enum CardSuit
+    {
+        Clubs,
+        Spades,
+        Diamonds,
+        Hearts
+    }
+
+    public struct Card
+    {
+        public Card(CardValue value, CardSuit suit)
         {
-            TWO,
-            THREE,
-            FOUR,
-            FIVE,
-            SIX,
-            SEVEN,
-            EIGHT,
-            NINE,
-            TEN,
-            JACK,
-            QUEEN,
-            KING,
-            ACE
-        }
-        
-        // Suits for each card
-        //
-        // Used for assigning names to cards on initialization
-        private enum CardSuit
-        {
-            CLUBS,
-            SPADES,
-            DIAMONDS,
-            HEARTS
+            m_value = value;
+            m_suit = suit;
         }
 
-        public struct Card
+        // Card values/ranks must be viewable, but not editable
+        private CardValue m_value;
+        public CardValue Value
         {
-            public CardValue val;  // Value or "rank" of card, to be compared against other cards
-            public string name;    // Display name for the card
+            get { return m_value; }
         }
-        
+
+        // Card suits must be viewable, but not editable
+        private CardSuit m_suit;
+        public CardSuit Suit
+        {
+            get { return m_suit; }
+        }
+
+        public override string ToString()
+        {
+            return $"{m_value} of {m_suit}";
+        }
+    }
+
+    class Deck
+    {
         // Constructor
         public Deck()
         {
             m_cards = new List<Card>();
+        }
 
-            // Iterate through each suit
-            foreach (CardSuit suit in (CardSuit[]) Enum.GetValues(typeof(CardSuit)))
-            {
-                // Iterate through each card value
-                foreach (CardValue val in (CardValue[])Enum.GetValues(typeof(CardValue)))
-                {
-                    Card card;
-                    card.val = val;
+        // Populate
+        // 
+        // Fills the deck with the standard playing cards, each suit sorted by rank ascending
+        public void Populate()
+        {
+            // Generate iterable arrays consisting of each suit and value
+            CardSuit[] suits = (CardSuit[])Enum.GetValues(typeof(CardSuit));
+            CardValue[] values = (CardValue[])Enum.GetValues(typeof(CardValue));
 
-                    // Assign string for card rank
-                    switch (val)
-                    {
-                        case CardValue.TWO:
-                            card.name = "Two of ";
-                            break;
-
-                        case CardValue.THREE:
-                            card.name = "Three of ";
-                            break;
-
-                        case CardValue.FOUR:
-                            card.name = "Four of ";
-                            break;
-
-                        case CardValue.FIVE:
-                            card.name = "Five of ";
-                            break;
-
-                        case CardValue.SIX:
-                            card.name = "Six of ";
-                            break;
-
-                        case CardValue.SEVEN:
-                            card.name = "Seven of ";
-                            break;
-
-                        case CardValue.EIGHT:
-                            card.name = "Eight of ";
-                            break;
-
-                        case CardValue.NINE:
-                            card.name = "Nine of ";
-                            break;
-
-                        case CardValue.TEN:
-                            card.name = "Ten of ";
-                            break;
-
-                        case CardValue.JACK:
-                            card.name = "Jack of ";
-                            break;
-
-                        case CardValue.QUEEN:
-                            card.name = "Queen of ";
-                            break;
-
-                        case CardValue.KING:
-                            card.name = "King of ";
-                            break;
-
-                        case CardValue.ACE:
-                            card.name = "Ace of ";
-                            break;
-
-                        default:
-                            card.name = "";
-                            break;
-                    }
-
-                    // Assign string for card suit
-                    switch (suit)
-                    {
-                        case CardSuit.CLUBS:
-                            card.name += "Clubs";
-                            break;
-
-                        case CardSuit.SPADES:
-                            card.name += "Spades";
-                            break;
-
-                        case CardSuit.DIAMONDS:
-                            card.name += "Diamonds";
-                            break;
-
-                        case CardSuit.HEARTS:
-                            card.name += "Hearts";
-                            break;
-
-                        default:
-                            card.name = "";
-                            break;
-                    }
-
-                    // Add only valid cards to the deck
-                    // Revise after coming up with better way to deal with this
-                    if (card.name != "")
-                    {
-                        m_cards.Add(card);
-                    }
-                }
-            }
+            // Note: I used LINQ syntax here specifically because it was mentioned in the
+            // job description. Personally, I would prefer nested loops unless told otherwise.
+            m_cards.AddRange(
+                from CardSuit suit in suits
+                from CardValue value in values
+                let card = new Card(value, suit)  
+                select card
+            );
         }
 
         // Shuffle
@@ -181,12 +121,13 @@ namespace GameOfWar
         //          null if the deck is empty
         public Card? DrawCard()
         {
+            // Null return value indicates empty deck
             Card? card = null;
 
-            // Check for empty deck
+            // We can't draw from an empty deck
             if (m_cards.Count > 0)
             {
-                // Copy the "top" of the deck, remove top
+                // Drawn cards are removed from the deck itself
                 card = m_cards[0];
                 m_cards.RemoveAt(0);
             }
@@ -194,12 +135,30 @@ namespace GameOfWar
             return card;
         }
 
+        // Split
+        //
+        // Takes the first half of m_cards, removes it from the original deck.
+        // Then returns the new deck as a separate entity from the first deck.
+        // returns: A new Deck object, containing only the first half of the
+        //          original deck.
+        public Deck Split()
+        {
+            Deck secondDeck = new Deck();
+            int halfDeck = m_cards.Count / 2;
+            
+            // The "Taken" top half must be removed from the m_deck
+            secondDeck.m_cards = m_cards.Take(halfDeck).ToList();
+            m_cards = m_cards.Skip(halfDeck).ToList();
+
+            return secondDeck;
+        }
+
         // Mainly for debugging
         public void PrintCards()
         {
             foreach (Card card in m_cards)
             {
-                Console.WriteLine($"{card.name}, {card.val}");
+                Console.WriteLine(card.ToString());
             }
         }
 
