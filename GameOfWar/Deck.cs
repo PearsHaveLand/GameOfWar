@@ -10,7 +10,8 @@ namespace GameOfWar
         //
         // By using an enum, this allows face cards to be compared with numerical values
         // in a simple and readable way.
-        private enum CardValue
+        // Making it public allows outside classes to compare the card values
+        public enum CardValue
         {
             TWO,
             THREE,
@@ -38,7 +39,7 @@ namespace GameOfWar
             HEARTS
         }
 
-        struct Card
+        public struct Card
         {
             public CardValue val;  // Value or "rank" of card, to be compared against other cards
             public string name;    // Display name for the card
@@ -171,6 +172,26 @@ namespace GameOfWar
 
                 swapCardsAt(i, randPos);
             }
+        }
+
+        // DrawCard
+        //
+        // Copies the card at index 0 (the "top" of the deck), and returns it.
+        // returns: Copy of the "top" card of the deck if it exists, or
+        //          null if the deck is empty
+        public Card? DrawCard()
+        {
+            Card? card = null;
+
+            // Check for empty deck
+            if (m_cards.Count > 0)
+            {
+                // Copy the "top" of the deck, remove top
+                card = m_cards[0];
+                m_cards.RemoveAt(0);
+            }
+
+            return card;
         }
 
         // Mainly for debugging
