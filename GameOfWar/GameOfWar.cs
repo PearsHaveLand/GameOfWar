@@ -44,6 +44,7 @@ namespace GameOfWar
         public GameOfWar()
         {
             m_deck1 = new Deck();
+            m_phase = GamePhase.MainMenu;
         }
         
         private bool handleInput(string input)
@@ -69,7 +70,6 @@ namespace GameOfWar
 
         public void RunGame()
         {
-            m_deck1.Populate();
             m_deck1.Shuffle();
             m_deck2 = m_deck1.Split();
             Console.WriteLine(bannerText);

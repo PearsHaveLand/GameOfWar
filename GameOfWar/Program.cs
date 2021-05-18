@@ -7,7 +7,6 @@ namespace GameOfWar
         static void Split()
         {
             Deck deck1 = new Deck();
-            deck1.Populate();
             Deck deck2 = deck1.Split();
 
             Console.WriteLine("Deck 1:");
