@@ -73,14 +73,12 @@ namespace GameOfWar
             m_deck1.Shuffle();
             m_deck2 = m_deck1.Split();
             Console.WriteLine(bannerText);
-
-            Console.WriteLine($"Deck1:\n{m_deck1.ToString()}");
-            Console.WriteLine($"Deck2:\n{m_deck2.ToString()}");
         }
 
-        private Deck m_deck1, m_deck2;
+        private Deck m_deck1,   // Deck for Player 1
+                    m_deck2;    // Deck for Player 2
         private GamePhase m_phase;
-        private string bannerText = @"
+        private const string bannerText = @"
 ========================
 #     #    #    ######  
 #  #  #   # #   #     # 
