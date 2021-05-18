@@ -47,9 +47,22 @@ namespace GameOfWar
             m_phase = GamePhase.MainMenu;
         }
         
-        private bool handleInput(string input)
+        // validateInput
+        //
+        // Given user input, performs necessary input validation based on
+        // the current game phase.
+        // param input - string containing user input
+        // return - true if input is valid, false if not
+        private bool validateInput(string input)
         {
             bool valid = false;
+
+            // Exit case should be handled at any phase, and quickly
+            if (input == "exit")
+            {
+                m_exit = true;
+                return true;
+            }
 
             switch (m_phase)
             {
@@ -68,17 +81,112 @@ namespace GameOfWar
             return valid;
         }
 
-        public void RunGame()
+        // handleValidInput
+        //
+        // Given the validated user input, performs the necessary
+        // game operations.
+        private void handleValidInput(string input)
         {
-            m_deck1.Shuffle();
-            m_deck2 = m_deck1.Split();
-            Console.WriteLine(bannerText);
+            if (input == "exit")
+            {
+                return;
+            }
+
+            switch (m_phase)
+            {
+                case GamePhase.MainMenu:
+                    break;
+                case GamePhase.RegularLoop:
+                    break;
+                case GamePhase.War:
+                    break;
+                case GamePhase.ContinueScreen:
+                    break;
+                default:
+                    break;
+            }
         }
 
-        private Deck m_deck1,   // Deck for Player 1
-                    m_deck2;    // Deck for Player 2
+        // handleBadInput()
+        //
+        // Based on game phase, outputs the appropriate error
+        // message.
+        private void handleBadInput()
+        {
+            switch (m_phase)
+            {
+                case GamePhase.MainMenu:
+                    break;
+                case GamePhase.RegularLoop:
+                    break;
+                case GamePhase.War:
+                    break;
+                case GamePhase.ContinueScreen:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void outputCurrentPhase()
+        {
+            switch (m_phase)
+            {
+                case GamePhase.MainMenu:
+                    Console.WriteLine(m_mainMenuText);
+                    break;
+                case GamePhase.RegularLoop:
+                    break;
+                case GamePhase.War:
+                    break;
+                case GamePhase.ContinueScreen:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        // RunGame
+        //
+        // Performs the main gameplay loop
+        public void RunGame()
+        {
+            string userInput = "";
+
+            m_deck1.Shuffle();
+            m_deck2 = m_deck1.Split();
+
+            // Keep looping until the user decides to leave
+            while (m_exit == false)
+            {
+                outputCurrentPhase();
+
+                userInput = Console.ReadLine();
+                
+                if (validateInput(userInput) == true)
+                {
+                    handleValidInput(userInput);
+                }
+
+                else  // validateInput(userInput) == false
+                {
+                    handleBadInput();
+                }
+            }
+
+            Console.WriteLine("Thanks for playing!");
+        }
+
+        // Decks for each player
+        private Deck m_deck1, m_deck2;
+
+        // The current phase of the game
         private GamePhase m_phase;
-        private const string bannerText = @"
+
+        // Indicates if the user would like to quit the game
+        private bool m_exit;    
+
+        private const string m_mainMenuText = @"
 ========================
 #     #    #    ######  
 #  #  #   # #   #     # 
@@ -87,7 +195,16 @@ namespace GameOfWar
 #  #  # ####### #   #
 #  #  # #     # #    #  
  ## ##  #     # #     #
-========================";
+========================
+
+Welcome to War!
+Written by Pearce Haviland
+
+Write 'exit' to quit the game at any time.
+
+Enter the number corresponding to your preferred option:
+1: Start Game
+2: Read Rules";
         
     }
 }
