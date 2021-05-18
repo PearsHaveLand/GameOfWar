@@ -72,16 +72,12 @@ namespace GameOfWar
     class Deck
     {
         // Constructor
+        //
+        // Fills the deck with the standard playing cards, each suit sorted by rank ascending
         public Deck()
         {
             m_cards = new List<Card>();
-        }
 
-        // Populate
-        // 
-        // Fills the deck with the standard playing cards, each suit sorted by rank ascending
-        public void Populate()
-        {
             // Generate iterable arrays consisting of each suit and value
             CardSuit[] suits = (CardSuit[])Enum.GetValues(typeof(CardSuit));
             CardValue[] values = (CardValue[])Enum.GetValues(typeof(CardValue));
@@ -91,7 +87,7 @@ namespace GameOfWar
             m_cards.AddRange(
                 from CardSuit suit in suits
                 from CardValue value in values
-                let card = new Card(value, suit)  
+                let card = new Card(value, suit)
                 select card
             );
         }
