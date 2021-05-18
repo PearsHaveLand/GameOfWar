@@ -45,7 +45,8 @@ namespace GameOfWar
 
         static void Main(string[] args)
         {
-            Split();
+            GameOfWar game = new GameOfWar();
+            game.RunGame();
         }
     }
 }
