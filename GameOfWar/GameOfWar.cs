@@ -158,6 +158,7 @@ namespace GameOfWar
                             Console.WriteLine("Player 1 ran out of cards!");
                             m_phase = GamePhase.ContinueScreen;
                             m_winner = Player.Player2;
+                            break;
                         }
                     }
 
