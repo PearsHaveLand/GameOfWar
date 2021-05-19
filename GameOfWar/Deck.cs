@@ -1,7 +1,13 @@
-﻿using System;
+﻿/* 
+ * Class Deck
+ * Author: Pearce Haviland
+ * 
+ * Description:
+ * A simple card deck built for War.
+ */
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace GameOfWar
 {
@@ -126,16 +132,27 @@ namespace GameOfWar
             return cardsRemaining;
         }
 
+        // AddRange
+        //
+        // Appends all Cards contained in the parameter cards to m_cards.
+        // param cards - Any object that implements the IEnumerable<T> interface,
+        //               but only contains cards
         public void AddRange(System.Collections.Generic.IEnumerable<Card> cards)
         {
             m_cards.AddRange(cards);
         }
 
+        // Count
+        //
+        // Returns the number of cards contained in the Deck
         public int Count()
         {
             return m_cards.Count();
         }
 
+        // Initialize
+        //
+        // Populates the Deck with cards
         public void Initialize()
         {
             m_cards = new List<Card>();
@@ -154,6 +171,9 @@ namespace GameOfWar
             );
         }
 
+        // Clear
+        //
+        // Empties the deck of cards
         public void Clear()
         {
             m_cards.Clear();
@@ -213,6 +233,7 @@ namespace GameOfWar
             }
         }
 
-        private List<Card> m_cards;  // Deck of cards for shuffling, dealing, etc.
+        // Deck of cards for shuffling, dealing, etc.
+        private List<Card> m_cards;
     }
 }

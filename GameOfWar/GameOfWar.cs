@@ -8,7 +8,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace GameOfWar
 {
@@ -23,6 +22,18 @@ namespace GameOfWar
             ContinueScreen  // Player decides between "Play again" and "Exit"
         }
 
+        // Used in determining the winning player. I'd rather use enums than something
+        // like 'int winningPlayer' or 'bool player1Wins'
+        private enum Player
+        {
+            Nobody,
+            Player1,
+            Player2
+        }
+
+        // Constructor
+        //
+        // Performs general member initialization for the game start
         public GameOfWar()
         {
             m_deck1 = new Deck();
@@ -37,7 +48,7 @@ namespace GameOfWar
         // handleInput
         //
         // Given user input, performs necessary input validation based on
-        // the current game phase.
+        // the current game phase, then processes that input accordingly.
         // param input - string containing user input
         // return - true if input is valid, false if not
         private void handleInput(string input)
@@ -300,6 +311,9 @@ namespace GameOfWar
             Console.WriteLine($"Card count:\nPlayer 1: {m_deck1.Count()}\tPlayer 2: {m_deck2.Count()}\n");
         }
 
+        // promptCurrentPhase
+        //
+        // Based on the current game phase, outputs a prompt for the user.
         private void promptCurrentPhase()
         {
             switch (m_phase)
@@ -364,15 +378,6 @@ namespace GameOfWar
         // The current phase of the game
         private GamePhase m_phase;
 
-        // Used in determining the winning player. I'd rather use enums than something
-        // like 'int winningPlayer' or 'bool player1Wins'
-        private enum Player
-        {
-            Nobody,
-            Player1,
-            Player2
-        }
-
         private Player m_winner;
 
         // Indicates if the user would like to quit the game
@@ -381,7 +386,10 @@ namespace GameOfWar
         // Indicates if the player wants to skip until the end of the war
         private bool m_skip;
 
+        // Keeps track of the number of "rounds", or occurrences of card comparisons
         private int m_roundCount;
+
+        // Below are constants used for this class only
 
         private const string m_bannerText = @"
 ========================
@@ -412,8 +420,8 @@ Each player gets dealt half the deck, 26 cards, and the cards are put face down
 in a stack in front of the players.
 
 Both players turn their top card face up at the same time. The person with the
-higher card wins that draw, and takes both the cards. They are put to the side
-to form a new stack, which the player can use when he finishes his current stack.
+higher card wins that draw, and takes both the cards. The cards are put to the side
+to form a new stack, which the player can use when they finish their current stack.
 
 If both players draw a card of the same rank, e.g. they both draw 8s, then there's
 a war. The face up cards are left on the table and each player puts three cards face
