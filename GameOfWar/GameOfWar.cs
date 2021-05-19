@@ -31,6 +31,7 @@ namespace GameOfWar
             m_player2Hand = new Stack<Card>();
             m_winner = Player.Nobody;
             m_skip = false;
+            m_roundCount = 0;
         }
         
         // handleInput
@@ -103,6 +104,7 @@ namespace GameOfWar
                     // Player 1 has lost
                     else
                     {
+                        Console.WriteLine("Player 1 ran out of cards!");
                         m_phase = GamePhase.ContinueScreen;
                         m_winner = Player.Player2;
                     }
@@ -116,6 +118,7 @@ namespace GameOfWar
                     // Player 2 has lost
                     else
                     {
+                        Console.WriteLine("Player 2 ran out of cards!");
                         m_phase = GamePhase.ContinueScreen;
                         m_winner = Player.Player1;
                     }
@@ -152,6 +155,7 @@ namespace GameOfWar
                         }
                         else
                         {
+                            Console.WriteLine("Player 1 ran out of cards!");
                             m_phase = GamePhase.ContinueScreen;
                             m_winner = Player.Player2;
                         }
@@ -166,8 +170,10 @@ namespace GameOfWar
                         }
                         else
                         {
+                            Console.WriteLine("Player 2 ran out of cards!");
                             m_phase = GamePhase.ContinueScreen;
                             m_winner = Player.Player1;
+                            break;
                         }
                     }
 
@@ -193,7 +199,7 @@ namespace GameOfWar
                         else
                         {
                             m_winner = Player.Nobody;
-                            Console.WriteLine("Both players ran out of cards at the exact same time, so nobody wins! Maybe you should buy a lottery ticket :)");
+                            Console.WriteLine("Both players ran out of cards at the exact same time, so nobody wins! With luck like that, maybe you should buy a lottery ticket :)");
                             m_phase = GamePhase.ContinueScreen;
                             break;
                         }
@@ -207,43 +213,58 @@ namespace GameOfWar
 
                     break;
                 case GamePhase.ContinueScreen:
-                    valid = true;
-                    m_exit = true;
+                    switch (input)
+                    {
+                        case "Y":
+                        case "y":
+                            // Change all flags back to the default value
+                            valid = true;
+                            m_phase = GamePhase.RegularLoop;
+                            m_skip = false;
+                            m_winner = Player.Nobody;
+                            m_roundCount = 0;
+
+                            // Perform game reset steps
+                            m_player1Hand.Clear();
+                            m_player2Hand.Clear();
+                            m_deck1.Clear();
+                            m_deck1.Initialize();
+                            m_deck1.Shuffle();
+                            m_deck2.Clear();
+                            m_deck2 = m_deck1.Split();
+                            
+                            break;
+                        
+                        case "N":
+                        case "n":
+                            valid = true;
+                            m_exit = true;
+                            break;
+                    }
                     break;
             }
 
             if (valid == false)
             {
-                handleBadInput();
+                Console.WriteLine($"Invalid command. Please try again.");
             }
         }
 
-        // handleBadInput()
+        // compareCards
         //
-        // Based on game phase, outputs the appropriate error
-        // message.
-        private void handleBadInput()
-        {
-            switch (m_phase)
-            {
-                case GamePhase.MainMenu:
-                    break;
-                case GamePhase.RegularLoop:
-                    break;
-                case GamePhase.War:
-                    break;
-                case GamePhase.ContinueScreen:
-                    break;
-            }
-        }
-
+        // Determines which card is greater than the other,
+        // then distributes the winnings to the correct player.
+        // Also performs cleanup operations if the round has
+        // been resolved.
         private void compareCards()
         {
             Card card1 = m_player1Hand.Peek();
             Card card2 = m_player2Hand.Peek();
+            m_roundCount++;
 
             Player roundWinner = Player.Nobody;
 
+            // Card comparison
             if (card1.Value > card2.Value)
             {
                 roundWinner = Player.Player1;
@@ -256,12 +277,14 @@ namespace GameOfWar
                 m_deck2.AddRange(m_player2Hand);
                 m_deck2.AddRange(m_player1Hand);
             }
+
+            // Equal card values must be resolved in a "war"
             else
             {
                 m_phase = GamePhase.War;
             }
 
-            if (roundWinner != Player.Nobody)
+            if (roundWinner > Player.Nobody)
             {
                 // Exit war phase if necessary
                 m_phase = GamePhase.RegularLoop;
@@ -272,7 +295,7 @@ namespace GameOfWar
 
             }
 
-            Console.WriteLine($"{card1.ToString()} vs {card2.ToString()}!\n{roundWinner} wins this round.");
+            Console.WriteLine($"Round {m_roundCount}:\n{card1.ToString()} vs {card2.ToString()}!\n{roundWinner} wins this round.");
             Console.WriteLine($"Card count:\nPlayer 1: {m_deck1.Count()}\tPlayer 2: {m_deck2.Count()}\n");
         }
 
@@ -288,7 +311,7 @@ namespace GameOfWar
                     Console.WriteLine("Press Enter to draw your cards, or type 'skip' to skip to the end.");
                     break;
                 case GamePhase.ContinueScreen:
-                    Console.WriteLine($"{m_winner} wins!\nContinue? Y/N:");
+                    Console.WriteLine($"{m_winner} wins!\nPlay again? Y/N:");
                     break;
             }
         }
@@ -308,7 +331,7 @@ namespace GameOfWar
             // Keep looping until the user decides to leave
             while (m_exit == false)
             {
-
+                // When not skipping, we care about what the user types
                 if (m_skip == false || 
                     m_phase == GamePhase.ContinueScreen ||
                     m_phase == GamePhase.MainMenu)
@@ -316,6 +339,7 @@ namespace GameOfWar
                     promptCurrentPhase();
                     userInput = Console.ReadLine();
                 }
+                // When skipping, it is safe to not care about empty user input
                 else
                 {
                     userInput = "";
@@ -355,6 +379,8 @@ namespace GameOfWar
 
         // Indicates if the player wants to skip until the end of the war
         private bool m_skip;
+
+        private int m_roundCount;
 
         private const string m_bannerText = @"
 ========================
