@@ -10,29 +10,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-// Each player gets dealt half the deck, 26 cards, and the cards are put face down
-// in a stack in front of the players.
-//
-// Both players turn their top card face up at the same time. The person with the
-// higher card wins that draw, and takes both the cards. They are put to the side
-// to form a new stack, which the player can use when he finishes his current stack.
-//
-// If both players draw a card of the same rank, e.g. they both draw 8s, then there's
-// a war. The face up cards are left on the table and each player puts three cards face
-// down on the table, and then puts one card face up. The face up card determines who
-// wins the war and gets all 10 cards that are on the table at this point. If the face
-// up card is again the same rank, then the war goes on, three more face down, one face up etc.
-//
-// First player to finish all their cards loses the game.
-//
-// If a player finishes their cards during a war without having enough cards to finish the
-// war then they lose immediately.
-
 namespace GameOfWar
 {
     class GameOfWar
     {
-        // Used to simplify input handling
+        // Used to simplify input handling and game processing
         private enum GamePhase
         {
             MainMenu,       // Intro screen, where player decides what to do
@@ -45,15 +27,19 @@ namespace GameOfWar
         {
             m_deck1 = new Deck();
             m_phase = GamePhase.MainMenu;
+            m_player1Hand = new Stack<Card>();
+            m_player2Hand = new Stack<Card>();
+            m_winner = Player.Nobody;
+            m_skip = false;
         }
         
-        // validateInput
+        // handleInput
         //
         // Given user input, performs necessary input validation based on
         // the current game phase.
         // param input - string containing user input
         // return - true if input is valid, false if not
-        private bool validateInput(string input)
+        private void handleInput(string input)
         {
             bool valid = false;
 
@@ -61,49 +47,87 @@ namespace GameOfWar
             if (input == "exit")
             {
                 m_exit = true;
-                return true;
-            }
-
-            switch (m_phase)
-            {
-                case GamePhase.MainMenu:
-                    break;
-                case GamePhase.RegularLoop:
-                    break;
-                case GamePhase.War:
-                    break;
-                case GamePhase.ContinueScreen:
-                    break;
-                default:
-                    break;
-            }
-
-            return valid;
-        }
-
-        // handleValidInput
-        //
-        // Given the validated user input, performs the necessary
-        // game operations.
-        private void handleValidInput(string input)
-        {
-            if (input == "exit")
-            {
                 return;
             }
 
             switch (m_phase)
             {
                 case GamePhase.MainMenu:
+                    int menuSelection;
+
+                    // We need to check input validity before processing.
+                    // At first, I thought this should go into its own function,
+                    // but I felt like I was repeating a lot of code by doing so.
+                    valid = Int32.TryParse(input, out menuSelection);
+                    if (valid)
+                    {
+                        valid = (menuSelection >= 1 && menuSelection <= m_numMainMenuOptions);
+                        if (valid)
+                        {
+                            switch (menuSelection)
+                            {
+                                case 1:
+                                    m_phase = GamePhase.RegularLoop;
+                                    break;
+                                case 2:
+                                    Console.WriteLine(m_rulesText);
+                                    break;
+                            }
+                        }
+                    }
                     break;
+
                 case GamePhase.RegularLoop:
+
+                    if (input == "skip")
+                    {
+                        m_skip = true;
+                    }
+
+                    Card? drawnCard;
+
+                    // Player 1 is still "in"
+                    if (m_deck1.DrawCard(out drawnCard))
+                    {
+                        m_player1Hand.Push((Card) drawnCard);
+                    }
+
+                    // Player 1 has lost
+                    else
+                    {
+                        m_phase = GamePhase.ContinueScreen;
+                        m_winner = Player.Player2;
+                    }
+
+                    // Player 2 is still "in"
+                    if (m_deck2.DrawCard(out drawnCard))
+                    {
+                        m_player2Hand.Push((Card)drawnCard);
+                    }
+
+                    // Player 2 has lost
+                    else
+                    {
+                        m_phase = GamePhase.ContinueScreen;
+                        m_winner = Player.Player1;
+                    }
+
+                    if (m_winner == Player.Nobody)
+                    {
+                        compareCards();
+                    }
+
                     break;
                 case GamePhase.War:
                     break;
                 case GamePhase.ContinueScreen:
+                    m_exit = true;
                     break;
-                default:
-                    break;
+            }
+
+            if (valid == false)
+            {
+                handleBadInput();
             }
         }
 
@@ -123,12 +147,42 @@ namespace GameOfWar
                     break;
                 case GamePhase.ContinueScreen:
                     break;
-                default:
-                    break;
             }
         }
 
-        private void outputCurrentPhase()
+        private void compareCards()
+        {
+            Card card1 = m_player1Hand.Peek();
+            Card card2 = m_player2Hand.Peek();
+
+            Player roundWinner = Player.Nobody;
+
+            if (card1.Value > card2.Value)
+            {
+                roundWinner = Player.Player1;
+                m_deck1.AddRange(m_player1Hand);
+                m_deck1.AddRange(m_player2Hand);
+            }
+            else if (card1.Value < card2.Value)
+            {
+                roundWinner = Player.Player2;
+                m_deck2.AddRange(m_player2Hand);
+                m_deck2.AddRange(m_player1Hand);
+            }
+            else
+            {
+                m_phase = GamePhase.War;
+            }
+
+            if (roundWinner != Player.Nobody)
+            {
+                m_player1Hand.Clear();
+                m_player2Hand.Clear();
+                Console.WriteLine($"{card1.ToString()} vs {card2.ToString()}!\n{roundWinner} wins this round.\n");
+            }
+        }
+
+        private void promptCurrentPhase()
         {
             switch (m_phase)
             {
@@ -136,12 +190,12 @@ namespace GameOfWar
                     Console.WriteLine(m_mainMenuText);
                     break;
                 case GamePhase.RegularLoop:
+                    Console.WriteLine("Press Enter to draw your cards, or type 'skip' to skip to the end.");
                     break;
                 case GamePhase.War:
                     break;
                 case GamePhase.ContinueScreen:
-                    break;
-                default:
+                    Console.WriteLine($"{m_winner} wins!");
                     break;
             }
         }
@@ -156,22 +210,25 @@ namespace GameOfWar
             m_deck1.Shuffle();
             m_deck2 = m_deck1.Split();
 
+            Console.WriteLine(m_bannerText);
+
             // Keep looping until the user decides to leave
             while (m_exit == false)
             {
-                outputCurrentPhase();
 
-                userInput = Console.ReadLine();
-                
-                if (validateInput(userInput) == true)
+                if (m_skip == false || 
+                    m_phase == GamePhase.ContinueScreen ||
+                    m_phase == GamePhase.MainMenu)
                 {
-                    handleValidInput(userInput);
+                    promptCurrentPhase();
+                    userInput = Console.ReadLine();
+                }
+                else
+                {
+                    userInput = "";
                 }
 
-                else  // validateInput(userInput) == false
-                {
-                    handleBadInput();
-                }
+                handleInput(userInput);
             }
 
             Console.WriteLine("Thanks for playing!");
@@ -180,13 +237,33 @@ namespace GameOfWar
         // Decks for each player
         private Deck m_deck1, m_deck2;
 
+        // Cards in play for each player
+        // Note: I'm using Stack<T> since the cards "in play" require nothing more
+        // than Push() and to be added back into the Deck according to the game
+        // rules. So it's just easiest to implement this as a Stack<T>.
+        private Stack<Card> m_player1Hand, m_player2Hand;
+
         // The current phase of the game
         private GamePhase m_phase;
 
-        // Indicates if the user would like to quit the game
-        private bool m_exit;    
+        // Used in determining the winning player. I'd rather use enums than something
+        // like 'int winningPlayer' or 'bool player1Wins'
+        private enum Player
+        {
+            Nobody,
+            Player1,
+            Player2
+        }
 
-        private const string m_mainMenuText = @"
+        private Player m_winner;
+
+        // Indicates if the user would like to quit the game
+        private bool m_exit;
+
+        // Indicates if the player wants to skip until the end of the war
+        private bool m_skip;
+
+        private const string m_bannerText = @"
 ========================
 #     #    #    ######  
 #  #  #   # #   #     # 
@@ -199,12 +276,36 @@ namespace GameOfWar
 
 Welcome to War!
 Written by Pearce Haviland
+";
 
+        private const string m_mainMenuText = @"
 Write 'exit' to quit the game at any time.
 
 Enter the number corresponding to your preferred option:
-1: Start Game
-2: Read Rules";
-        
+  1: Start Game
+  2: Read Rules";
+
+        private const string m_rulesText = @"
+Rules:
+
+Each player gets dealt half the deck, 26 cards, and the cards are put face down
+in a stack in front of the players.
+
+Both players turn their top card face up at the same time. The person with the
+higher card wins that draw, and takes both the cards. They are put to the side
+to form a new stack, which the player can use when he finishes his current stack.
+
+If both players draw a card of the same rank, e.g. they both draw 8s, then there's
+a war. The face up cards are left on the table and each player puts three cards face
+down on the table, and then puts one card face up. The face up card determines who
+wins the war and gets all 10 cards that are on the table at this point. If the face
+up card is again the same rank, then the war goes on, three more face down, one face up etc.
+
+First player to finish all their cards loses the game.
+
+If a player finishes their cards during a war without having enough cards to finish the
+war then they lose immediately.";
+
+        private const int m_numMainMenuOptions = 2;
     }
 }
