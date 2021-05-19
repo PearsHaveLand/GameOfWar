@@ -144,6 +144,11 @@ namespace GameOfWar
             m_cards.AddRange(cards);
         }
 
+        public int Count()
+        {
+            return m_cards.Count();
+        }
+
         // Split
         //
         // Takes the first half of m_cards, removes it from the original deck.

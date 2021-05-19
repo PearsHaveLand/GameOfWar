@@ -83,6 +83,15 @@ namespace GameOfWar
                     if (input == "skip")
                     {
                         m_skip = true;
+                        valid = true;
+                    }
+                    else if (input == "")
+                    {
+                        valid = true;
+                    }
+                    else
+                    {
+                        break;
                     }
 
                     // Player 1 is still "in"
@@ -120,6 +129,20 @@ namespace GameOfWar
 
                 case GamePhase.War:
 
+                    if (input == "skip")
+                    {
+                        m_skip = true;
+                        valid = true;
+                    }
+                    else if (input == "")
+                    {
+                        valid = true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
                     // Player 1's hand
                     for (int i = 0; i < m_numWarCardsDrawn; i++)
                     {
@@ -156,6 +179,7 @@ namespace GameOfWar
 
                     break;
                 case GamePhase.ContinueScreen:
+                    valid = true;
                     m_exit = true;
                     break;
             }
@@ -217,8 +241,11 @@ namespace GameOfWar
                 // Clear the "table" by removing all cards from hands
                 m_player1Hand.Clear();
                 m_player2Hand.Clear();
-                Console.WriteLine($"{card1.ToString()} vs {card2.ToString()}!\n{roundWinner} wins this round.\n");
+
             }
+
+            Console.WriteLine($"{card1.ToString()} vs {card2.ToString()}!\n{roundWinner} wins this round.");
+            Console.WriteLine($"Card count:\nPlayer 1: {m_deck1.Count()}\tPlayer 2: {m_deck2.Count()}\n");
         }
 
         private void promptCurrentPhase()
@@ -229,9 +256,8 @@ namespace GameOfWar
                     Console.WriteLine(m_mainMenuText);
                     break;
                 case GamePhase.RegularLoop:
-                    Console.WriteLine("Press Enter to draw your cards, or type 'skip' to skip to the end.");
-                    break;
                 case GamePhase.War:
+                    Console.WriteLine("Press Enter to draw your cards, or type 'skip' to skip to the end.");
                     break;
                 case GamePhase.ContinueScreen:
                     Console.WriteLine($"{m_winner} wins!");
