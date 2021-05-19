@@ -76,20 +76,7 @@ namespace GameOfWar
         // Fills the deck with the standard playing cards, each suit sorted by rank ascending
         public Deck()
         {
-            m_cards = new List<Card>();
-
-            // Generate iterable arrays consisting of each suit and value
-            CardSuit[] suits = (CardSuit[])Enum.GetValues(typeof(CardSuit));
-            CardValue[] values = (CardValue[])Enum.GetValues(typeof(CardValue));
-
-            // Note: I used LINQ syntax here specifically because it was mentioned in the
-            // job description. Personally, I would prefer nested loops unless told otherwise.
-            m_cards.AddRange(
-                from CardSuit suit in suits
-                from CardValue value in values
-                let card = new Card(value, suit)
-                select card
-            );
+            Initialize();
         }
 
         // Shuffle
@@ -147,6 +134,29 @@ namespace GameOfWar
         public int Count()
         {
             return m_cards.Count();
+        }
+
+        public void Initialize()
+        {
+            m_cards = new List<Card>();
+
+            // Generate iterable arrays consisting of each suit and value
+            CardSuit[] suits = (CardSuit[])Enum.GetValues(typeof(CardSuit));
+            CardValue[] values = (CardValue[])Enum.GetValues(typeof(CardValue));
+
+            // Note: I used LINQ syntax here specifically because it was mentioned in the
+            // job description. Personally, I would prefer nested loops unless told otherwise.
+            m_cards.AddRange(
+                from CardSuit suit in suits
+                from CardValue value in values
+                let card = new Card(value, suit)
+                select card
+            );
+        }
+
+        public void Clear()
+        {
+            m_cards.Clear();
         }
 
         // Split
