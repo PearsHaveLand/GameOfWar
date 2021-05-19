@@ -171,6 +171,34 @@ namespace GameOfWar
                         }
                     }
 
+                    // What are the chances of enough back-to-back wars
+                    // that everyone just exhausts their decks?
+                    if (m_deck1.Count() == 0 &&
+                        m_deck2.Count() == 0)
+                    {
+                        // The player with the larger hand size wins,
+                        // since they still had at least 1 card when
+                        // the losing player ran out of cards.
+                        if (m_player1Hand.Count > m_player2Hand.Count)
+                        {
+                            m_winner = Player.Player1;
+                        }
+                        else if (m_player1Hand.Count < m_player2Hand.Count)
+                        {
+                            m_winner = Player.Player2;
+                        }
+
+                        // For the incredibly unlikely event both players exhaust
+                        // their decks at the exact same time
+                        else
+                        {
+                            m_winner = Player.Nobody;
+                            Console.WriteLine("Both players ran out of cards at the exact same time, so nobody wins! Maybe you should buy a lottery ticket :)");
+                            m_phase = GamePhase.ContinueScreen;
+                            break;
+                        }
+                    }
+
                     // No need to continue if a winner is decided
                     if (m_winner == Player.Nobody)
                     {
@@ -260,7 +288,7 @@ namespace GameOfWar
                     Console.WriteLine("Press Enter to draw your cards, or type 'skip' to skip to the end.");
                     break;
                 case GamePhase.ContinueScreen:
-                    Console.WriteLine($"{m_winner} wins!");
+                    Console.WriteLine($"{m_winner} wins!\nContinue? Y/N:");
                     break;
             }
         }
