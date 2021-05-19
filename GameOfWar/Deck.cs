@@ -116,12 +116,12 @@ namespace GameOfWar
         // DrawCard
         //
         // Copies the card at index 0 (the "top" of the deck), and returns it.
-        // returns: Copy of the "top" card of the deck if it exists, or
-        //          null if the deck is empty
-        public Card? DrawCard()
+        // param out card: Card to draw if the deck has remaining cards
+        // returns: true if card was successfully drawn
+        //          false if the deck is empty
+        public bool DrawCard(out Card? card)
         {
-            // Null return value indicates empty deck
-            Card? card = null;
+            bool cardsRemaining = false;
 
             // We can't draw from an empty deck
             if (m_cards.Count > 0)
@@ -129,9 +129,19 @@ namespace GameOfWar
                 // Drawn cards are removed from the deck itself
                 card = m_cards[0];
                 m_cards.RemoveAt(0);
+                cardsRemaining = true;
+            }
+            else
+            {
+                card = null;
             }
 
-            return card;
+            return cardsRemaining;
+        }
+
+        public void AddRange(System.Collections.Generic.IEnumerable<Card> cards)
+        {
+            m_cards.AddRange(cards);
         }
 
         // Split
