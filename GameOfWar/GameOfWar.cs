@@ -42,6 +42,7 @@ namespace GameOfWar
         private void handleInput(string input)
         {
             bool valid = false;
+            Card? drawnCard;
 
             // Exit case should be handled at any phase, and quickly
             if (input == "exit")
@@ -84,8 +85,6 @@ namespace GameOfWar
                         m_skip = true;
                     }
 
-                    Card? drawnCard;
-
                     // Player 1 is still "in"
                     if (m_deck1.DrawCard(out drawnCard))
                     {
@@ -118,7 +117,43 @@ namespace GameOfWar
                     }
 
                     break;
+
                 case GamePhase.War:
+
+                    // Player 1's hand
+                    for (int i = 0; i < m_numWarCardsDrawn; i++)
+                    {
+                        if (m_deck1.DrawCard(out drawnCard))
+                        {
+                            m_player1Hand.Push((Card)drawnCard);
+                        }
+                        else
+                        {
+                            m_phase = GamePhase.ContinueScreen;
+                            m_winner = Player.Player2;
+                        }
+                    }
+
+                    // Player 2's hand
+                    for (int i = 0; i < m_numWarCardsDrawn; i++)
+                    {
+                        if (m_deck2.DrawCard(out drawnCard))
+                        {
+                            m_player2Hand.Push((Card)drawnCard);
+                        }
+                        else
+                        {
+                            m_phase = GamePhase.ContinueScreen;
+                            m_winner = Player.Player1;
+                        }
+                    }
+
+                    // No need to continue if a winner is decided
+                    if (m_winner == Player.Nobody)
+                    {
+                        compareCards();
+                    }
+
                     break;
                 case GamePhase.ContinueScreen:
                     m_exit = true;
@@ -176,6 +211,10 @@ namespace GameOfWar
 
             if (roundWinner != Player.Nobody)
             {
+                // Exit war phase if necessary
+                m_phase = GamePhase.RegularLoop;
+
+                // Clear the "table" by removing all cards from hands
                 m_player1Hand.Clear();
                 m_player2Hand.Clear();
                 Console.WriteLine($"{card1.ToString()} vs {card2.ToString()}!\n{roundWinner} wins this round.\n");
@@ -307,5 +346,9 @@ If a player finishes their cards during a war without having enough cards to fin
 war then they lose immediately.";
 
         private const int m_numMainMenuOptions = 2;
+
+        // In war, 3 cards are drawn and placed face-down, with
+        // a 4th card placed face-up for the comparison
+        private const int m_numWarCardsDrawn = 4;
     }
 }
